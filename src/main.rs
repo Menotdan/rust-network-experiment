@@ -1,5 +1,6 @@
 mod network;
 mod types;
+mod core;
 
 use std::io::Cursor;
 use network::serialization::Serialization;

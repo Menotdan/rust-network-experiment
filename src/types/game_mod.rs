@@ -1,7 +1,14 @@
 use crate::network::packet::Packet;
 
 pub struct GameModData {
-    packets: Vec<Box<dyn Packet>>,
+    name: String,
+    packets: Vec<Box<dyn Packet>>
+}
+
+impl GameModData {
+    // pub fn get_packet_by_id(&self, id: u32) -> dyn Packet {
+    //     for
+    // }
 }
 
 pub trait GameMod {

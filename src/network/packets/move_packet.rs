@@ -2,6 +2,7 @@ use crate::{network::{packet::Packet, serialization::Serialization}, types::pos:
 
 #[derive(Default)]
 pub struct MovePacket {
+    client_id: u32,
     from: Pos,
     to: Pos
 }
@@ -31,5 +32,17 @@ impl Packet for MovePacket {
 
     fn get_mod_id(&self) -> u32 {
         return 0;
+    }
+    
+    fn get_client_id(&self) -> u32 {
+        return self.client_id;
+    }
+
+    fn set_client_id(&mut self, id: u32) -> () {
+        self.client_id = id;
+    }
+    
+    fn operate(&self) -> bool {
+        todo!()
     }
 }
