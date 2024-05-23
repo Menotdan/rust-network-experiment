@@ -1,0 +1,42 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug executable 'network-project'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--bin=network-project",
+                    "--package=network-project"
+                ],
+                "filter": {
+                    "name": "network-project",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in executable 'network-project'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--bin=network-project",
+                    "--package=network-project"
+                ],
+                "filter": {
+                    "name": "network-project",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        }
+    ]
+}
