@@ -1,1 +1,2 @@
-pub mod game_mods;
+pub mod client;
+pub mod server;

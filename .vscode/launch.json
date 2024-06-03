@@ -4,12 +4,32 @@
         {
             "type": "lldb",
             "request": "launch",
-            "name": "Debug executable 'network-project'",
+            "name": "Debug Client",
             "cargo": {
                 "args": [
                     "build",
                     "--bin=network-project",
                     "--package=network-project"
+                ],
+                "filter": {
+                    "name": "network-project",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug Server",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--bin=network-project",
+                    "--package=network-project",
+                    "--features",
+                    "server"
                 ],
                 "filter": {
                     "name": "network-project",

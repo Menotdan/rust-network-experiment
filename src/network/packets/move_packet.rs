@@ -29,10 +29,6 @@ impl Packet for MovePacket {
     fn get_id(&self) -> u32 {
         return 0;
     }
-
-    fn get_mod_id(&self) -> u32 {
-        return 0;
-    }
     
     fn get_client_id(&self) -> u32 {
         return self.client_id;
