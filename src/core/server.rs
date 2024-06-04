@@ -5,7 +5,6 @@ use crate::network::{packet_io::read_packet, packets::Packets};
 use super::game_state::GameState;
 
 fn client_handler(mut stream: Box<TcpStream>, game_state: &mut GameState) -> bool {
-    thread::sleep(time::Duration::from_millis(200));
     let packets = Packets::get_packets();
     let connection_result = read_packet(&mut stream, &packets);
     let connection = match connection_result {
