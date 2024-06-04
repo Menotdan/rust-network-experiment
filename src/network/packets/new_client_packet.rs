@@ -1,20 +1,25 @@
 use std::net::TcpStream;
 
+use byteorder::{BigEndian, ReadBytesExt, WriteBytesExt};
+
 use crate::{core::game_state::{Client, GameState}, network::{packet::Packet, serialization::Serialization}, types::pos::Pos};
 
 #[derive(Default)]
 pub struct NewClientPacket {
     client_id: u32,
+    pub meow: u32,
 }
 
 impl Serialization for NewClientPacket {
     fn serialize(&self) -> Vec<u8> {
-        let out: Vec<u8> = Vec::new();
+        let mut out: Vec<u8> = Vec::new();
+        let _ = out.write_u32::<BigEndian>(self.meow);
 
         return out;
     }
 
-    fn deserialize(&mut self, _data: &mut std::io::Cursor<Vec<u8>>) -> () {
+    fn deserialize(&mut self, data: &mut std::io::Cursor<Vec<u8>>) -> () {
+        self.meow = data.read_u32::<BigEndian>().unwrap();
     }
 }
 
@@ -42,6 +47,7 @@ impl Packet for NewClientPacket {
 
         let new_client = Client { id: i, position: Pos::default(), stream: client_stream };
         game_state.clients.insert(i, new_client);
+        println!("New client with ID {}, meow: {}", i, self.meow);
         return true;
     }
 
