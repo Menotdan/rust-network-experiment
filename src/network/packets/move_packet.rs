@@ -1,4 +1,6 @@
-use crate::{network::{packet::Packet, serialization::Serialization}, types::pos::Pos};
+use std::net::TcpStream;
+
+use crate::{core::game_state::GameState, network::{packet::Packet, serialization::Serialization}, types::pos::Pos};
 
 #[derive(Default)]
 pub struct MovePacket {
@@ -27,7 +29,7 @@ impl Serialization for MovePacket {
 
 impl Packet for MovePacket {
     fn get_id(&self) -> u32 {
-        return 0;
+        return 1;
     }
     
     fn get_client_id(&self) -> u32 {
@@ -38,7 +40,11 @@ impl Packet for MovePacket {
         self.client_id = id;
     }
     
-    fn operate(&self) -> bool {
+    fn operate(&self, game_state: &mut GameState, _: Box<TcpStream>) -> bool {
         todo!()
+    }
+    
+    fn get_new(&self) -> Box<dyn Packet> {
+        return Box::new(MovePacket::default());
     }
 }
