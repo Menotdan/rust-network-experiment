@@ -12,7 +12,7 @@ pub fn init() {
 
     let mut join_packet = NewClientPacket::default();
     join_packet.meow = 727;
-    write_packet(&mut stream, Box::new(join_packet));
+    let _ = write_packet(&mut stream, Box::new(join_packet));
 
     loop {
         // TODO: game
