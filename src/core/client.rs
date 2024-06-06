@@ -7,6 +7,7 @@ use super::game_state::GameState;
 #[allow(dead_code)]
 pub fn init() {
     let mut stream = Box::new(TcpStream::connect("127.0.0.1:14727").unwrap());
+    let _ = stream.set_nonblocking(true);
     let mut game_state = GameState::default();
 
     let mut join_packet = NewClientPacket::default();

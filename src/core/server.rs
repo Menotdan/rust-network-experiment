@@ -1,4 +1,4 @@
-use std::{net::{TcpListener, TcpStream}, thread, time};
+use std::net::{TcpListener, TcpStream};
 
 use crate::network::{packet_io::read_packet, packets::Packets};
 
@@ -8,15 +8,26 @@ fn client_handler(mut stream: Box<TcpStream>, game_state: &mut GameState) -> boo
     let packets = Packets::get_packets();
     let connection_result = read_packet(&mut stream, &packets);
     let connection = match connection_result {
-        Ok(val) => val,
+        Ok(val) => match val {
+            Ok(real_val) => real_val,
+            Err(_) => {
+                println!("No connection packet to read!");
+                return false;
+            }
+        },
         Err(e) => {
             println!("Connection Failed: {e}");
             return false;
         }
     };
 
+    let _ = stream.set_nonblocking(true);
     connection.operate(game_state, stream);
     return true;
+}
+
+fn tick(game_state: &mut GameState) {
+
 }
 
 #[allow(dead_code)]
@@ -25,6 +36,7 @@ pub fn init() {
     let mut game_state = GameState::default();
 
     loop {
+        // Look for new clients
         for stream in listener.incoming() {
             let stream = stream.unwrap();
             println!("{}", stream.peer_addr().unwrap());
@@ -32,5 +44,7 @@ pub fn init() {
                 println!("Failed to connect client.");
             }
         }
+
+        tick(&mut game_state);
     }
 }

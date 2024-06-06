@@ -4,8 +4,18 @@ use byteorder::{BigEndian, ReadBytesExt, WriteBytesExt};
 
 use super::{packet::Packet, packets::Packets};
 
-pub fn read_packet(stream: &mut Box<TcpStream>, packets: &Packets) -> Result<Box<dyn Packet>, String> {
-    let length = stream.read_u32::<BigEndian>().unwrap_or(0);
+pub fn read_packet(stream: &mut Box<TcpStream>, packets: &Packets) -> Result<Result<Box<dyn Packet>, bool>, String> {
+    let length = match stream.read_u32::<BigEndian>() {
+        Ok(value) => value,
+        Err(err) => match err.kind() {
+            std::io::ErrorKind::WouldBlock => return Ok(Err(true)),
+            _ => {
+                let _ = stream.shutdown(std::net::Shutdown::Both);
+                return Err(String::from("Failed to read packet length."));
+            }
+        }
+    };
+
     if length == 0 {
         let _ = stream.shutdown(std::net::Shutdown::Both);
         return Err(String::from("Invalid Packet Length."));
@@ -32,7 +42,7 @@ pub fn read_packet(stream: &mut Box<TcpStream>, packets: &Packets) -> Result<Box
 
     packet.set_client_id(client_id);
     packet.deserialize(&mut packet_data);
-    return Ok(packet);
+    return Ok(Ok(packet));
 }
 
 pub fn write_packet(stream: &mut Box<TcpStream>, packet: Box<dyn Packet>) {
