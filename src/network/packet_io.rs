@@ -49,7 +49,7 @@ pub fn read_packet(stream: &mut Box<TcpStream>, packets: &Packets) -> Result<Res
     return Ok(Ok(packet));
 }
 
-pub fn write_packet(stream: &mut Box<TcpStream>, packet: Box<dyn Packet>) -> Result<u32, Error> {
+pub fn write_packet(stream: &mut Box<TcpStream>, packet: &Box<dyn Packet>) -> Result<u32, Error> {
     let packet_data_vec = packet.serialize();
     let mut send_data_vec = Vec::<u8>::new();
 

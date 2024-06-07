@@ -37,7 +37,7 @@ impl Packet for NewClientPacket {
     }
     
     fn operate(&self, game_state: &mut GameState, client_stream: Box<TcpStream>) -> Result<Box<dyn Packet>, bool> {
-        let mut i = 0;
+        let mut i = self.client_id;
         loop {
             if !game_state.clients.contains_key(&i) {
                 break;
@@ -51,7 +51,7 @@ impl Packet for NewClientPacket {
 
         let mut output_packet = NewClientPacket::default();
         output_packet.meow = self.meow;
-        output_packet.client_id = self.client_id;
+        output_packet.client_id = i;
 
         return Ok(Box::new(output_packet));
     }

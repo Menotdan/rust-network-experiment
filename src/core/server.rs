@@ -1,6 +1,6 @@
 use std::net::{TcpListener, TcpStream};
 
-use crate::network::{packet_io::read_packet, packets::Packets};
+use crate::network::{packet_io::{read_packet, write_packet}, packets::Packets};
 
 use super::game_state::GameState;
 
@@ -22,7 +22,15 @@ fn client_handler(mut stream: Box<TcpStream>, game_state: &mut GameState) -> boo
     };
 
     let _ = stream.set_nonblocking(true);
-    connection.operate(game_state, stream);
+    let broadcast = connection.operate(game_state, stream);
+    match broadcast {
+        Ok(val) => {
+            for client in game_state.clients.values_mut() {
+                let _ = write_packet(&mut client.stream, &val);
+            }
+        },
+        _ => { return false; }
+    }
     return true;
 }
 
