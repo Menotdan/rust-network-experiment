@@ -27,7 +27,7 @@ fn client_handler(mut stream: Box<TcpStream>, game_state: &mut GameState) -> boo
 }
 
 fn tick(game_state: &mut GameState) {
-
+    
 }
 
 #[allow(dead_code)]

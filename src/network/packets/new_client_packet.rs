@@ -36,7 +36,7 @@ impl Packet for NewClientPacket {
         self.client_id = id;
     }
     
-    fn operate(&self, game_state: &mut GameState, client_stream: Box<TcpStream>) -> bool {
+    fn operate(&self, game_state: &mut GameState, client_stream: Box<TcpStream>) -> Result<Box<dyn Packet>, bool> {
         let mut i = 0;
         loop {
             if !game_state.clients.contains_key(&i) {
@@ -48,7 +48,12 @@ impl Packet for NewClientPacket {
         let new_client = Client { id: i, position: Pos::default(), stream: client_stream };
         game_state.clients.insert(i, new_client);
         println!("New client with ID {}, meow: {}", i, self.meow);
-        return true;
+
+        let mut output_packet = NewClientPacket::default();
+        output_packet.meow = self.meow;
+        output_packet.client_id = self.client_id;
+
+        return Ok(Box::new(output_packet));
     }
 
     fn get_new(&self) -> Box<dyn Packet> {

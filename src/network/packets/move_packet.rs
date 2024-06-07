@@ -1,4 +1,4 @@
-use std::net::TcpStream;
+use std::{io::Cursor, net::TcpStream};
 
 use crate::{core::game_state::GameState, network::{packet::Packet, serialization::Serialization}, types::pos::Pos};
 
@@ -40,8 +40,17 @@ impl Packet for MovePacket {
         self.client_id = id;
     }
     
-    fn operate(&self, game_state: &mut GameState, _: Box<TcpStream>) -> bool {
-        todo!()
+    fn operate(&self, game_state: &mut GameState, _: Box<TcpStream>) -> Result<Box<dyn Packet>, bool>{
+        let target = game_state.clients.get(&self.client_id);
+        if target.is_none() {
+            return Err(true);
+        }
+
+        let mut output_packet = self.get_new();
+        output_packet.set_client_id(self.client_id);
+        output_packet.deserialize(&mut Cursor::new(self.serialize()));
+
+        return Ok(output_packet);
     }
     
     fn get_new(&self) -> Box<dyn Packet> {
