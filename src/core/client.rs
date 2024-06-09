@@ -1,8 +1,21 @@
 use std::{net::TcpStream, thread, time::Duration};
 
-use crate::network::{packet::Packet, packet_io::{read_packet, write_packet}, packets::{new_client_packet::NewClientPacket, Packets}};
+use crate::network::{packet::{Packet, PacketType}, packet_io::{read_packet, write_packet}, packets::{new_client_packet::NewClientPacket, Packets}};
 
 use super::game_state::GameState;
+
+fn add_new_client(new_client: &Box<NewClientPacket>) {
+
+}
+
+fn recieve_client_id(id_packet: &PacketType) -> Result<u32, String> {
+    match id_packet {
+        PacketType::GenericPacket(_) => return Err(String::from("Did not recieve client id packet.")),
+        PacketType::NewClientPacket(packet) => {
+            return Ok(packet.get_client_id());
+        }
+    }
+}
 
 #[allow(dead_code)]
 pub fn init() {
@@ -21,19 +34,18 @@ pub fn init() {
     let client_id_packet = read_packet(&mut stream, &packets);
     let client_id = match client_id_packet {
         Ok(val) => match val {
-            Ok(val) => {
-                let _ = val.operate(&mut game_state, stream);
-                val.get_client_id()
+            Ok(packet) => {
+                match recieve_client_id(&packet) {
+                    Ok(id) => id,
+                    Err(msg) => {
+                        println!("Connection failed: {msg}");
+                        return;
+                    }
+                }
             },
-            Err(_) => {
-                println!("err!");
-                return;
-            }
+            Err(_) => return
         },
-        Err(err) => {
-            println!("err: {}", err);
-            return;
-        }
+        Err(_) => return
     };
 
     println!("client id: {}", client_id);

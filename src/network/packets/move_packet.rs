@@ -1,6 +1,6 @@
 use std::{io::Cursor, net::TcpStream};
 
-use crate::{core::game_state::GameState, network::{packet::Packet, serialization::Serialization}, types::pos::Pos};
+use crate::{core::game_state::{Client, GameState, GameStateData}, network::{packet::{Packet, PacketType}, serialization::Serialization}, types::pos::Pos};
 
 #[derive(Default)]
 pub struct MovePacket {
@@ -40,11 +40,8 @@ impl Packet for MovePacket {
         self.client_id = id;
     }
     
-    fn operate(&self, game_state: &mut GameState, _: Box<TcpStream>) -> Result<Box<dyn Packet>, bool>{
-        let target = game_state.clients.get(&self.client_id);
-        if target.is_none() {
-            return Err(true);
-        }
+    fn operate(&self, packet_client: &mut Client, game_state: &mut GameStateData) -> Result<PacketType, ()>{
+        let target = packet_client;
 
         let mut output_packet = self.get_new();
         output_packet.set_client_id(self.client_id);
@@ -53,7 +50,7 @@ impl Packet for MovePacket {
         return Ok(output_packet);
     }
     
-    fn get_new(&self) -> Box<dyn Packet> {
-        return Box::new(MovePacket::default());
+    fn get_new(&self) -> PacketType {
+        return PacketType::GenericPacket(Box::new(MovePacket::default()));
     }
 }

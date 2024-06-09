@@ -2,9 +2,9 @@ use std::{io::{Cursor, Error, Read, Write}, net::TcpStream};
 
 use byteorder::{BigEndian, ReadBytesExt, WriteBytesExt};
 
-use super::{packet::Packet, packets::Packets};
+use super::{packet::{Packet, PacketType}, packets::Packets, serialization::Serialization};
 
-pub fn read_packet(stream: &mut Box<TcpStream>, packets: &Packets) -> Result<Result<Box<dyn Packet>, ()>, Error> {
+pub fn read_packet(stream: &mut Box<TcpStream>, packets: &Packets) -> Result<Result<PacketType, ()>, Error> {
     let length = match stream.read_u32::<BigEndian>() {
         Ok(value) => value,
         Err(err) => match err.kind() {
@@ -34,7 +34,7 @@ pub fn read_packet(stream: &mut Box<TcpStream>, packets: &Packets) -> Result<Res
         Err(err) => return Err(err),
     };
 
-    let mut packet: Box<dyn Packet> = match packets.get_new_packet_from_id(packet_id) {
+    let mut packet = match packets.get_new_packet_from_id(packet_id) {
         Ok(val) => val,
         Err(_) => return Err(std::io::Error::new::<String>(std::io::ErrorKind::InvalidData, String::from("Invalid packet id.")))
     };

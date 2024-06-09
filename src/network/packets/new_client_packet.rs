@@ -2,7 +2,7 @@ use std::net::TcpStream;
 
 use byteorder::{BigEndian, ReadBytesExt, WriteBytesExt};
 
-use crate::{core::game_state::{Client, GameState}, network::{packet::Packet, serialization::Serialization}, types::pos::Pos};
+use crate::{core::game_state::{Client, GameStateData}, network::{packet::{Packet, PacketType}, serialization::Serialization}};
 
 #[derive(Default)]
 pub struct NewClientPacket {
@@ -36,27 +36,11 @@ impl Packet for NewClientPacket {
         self.client_id = id;
     }
     
-    fn operate(&self, game_state: &mut GameState, client_stream: Box<TcpStream>) -> Result<Box<dyn Packet>, bool> {
-        let mut i = self.client_id;
-        loop {
-            if !game_state.clients.contains_key(&i) {
-                break;
-            }
-            i += 1;
-        }
-
-        let new_client = Client { id: i, position: Pos::default(), stream: client_stream };
-        game_state.clients.insert(i, new_client);
-        println!("New client with ID {}, meow: {}", i, self.meow);
-
-        let mut output_packet = NewClientPacket::default();
-        output_packet.meow = self.meow;
-        output_packet.client_id = i;
-
-        return Ok(Box::new(output_packet));
+    fn operate(&self, _packet_client: &mut Client, _game_state: &mut GameStateData) -> Result<PacketType, ()> {
+        return Err(());
     }
 
-    fn get_new(&self) -> Box<dyn Packet> {
-        return Box::new(NewClientPacket::default());
+    fn get_new(&self) -> PacketType {
+        return PacketType::NewClientPacket(Box::new(NewClientPacket::default()));
     }
 }
