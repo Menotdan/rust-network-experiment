@@ -31,9 +31,13 @@ fn client_connection_handler(mut stream: Box<TcpStream>, game_state: &mut GameSt
                 i += 1;
             }
 
-            let new_client = Client { id: i, position: Pos::default(), stream: stream, disconnected: false };
-            let _ = new_client.stream.set_nonblocking(true);
+            let new_client = Client { id: i, position: Pos::default(), stream: Option::Some(stream), disconnected: false };
+            if let Some(stream) = &new_client.stream {
+                let _ = stream.set_nonblocking(true);
+            }
+
             game_state.clients.insert(i, new_client);
+            
             println!("New client with ID {}, meow: {}", i, packet.meow);
 
             let mut output_packet = NewClientPacket::default();
@@ -50,7 +54,7 @@ fn client_connection_handler(mut stream: Box<TcpStream>, game_state: &mut GameSt
     };
 
     for client in game_state.clients.values_mut() {
-        let _ = write_packet(&mut client.stream, &broadcast);
+        let _ = write_packet(&mut client.stream.as_mut().expect("meow"), &broadcast);
     }
 
     return true;
@@ -63,7 +67,7 @@ fn tick(game_state: &mut GameState) {
     // Handle packets and accumulate broadcast packets
     for client in game_state.clients.values_mut() {
         loop {
-            let read_result = read_packet(&mut client.stream, &packets);
+            let read_result = read_packet(&mut client.stream.as_mut().expect("meow"), &packets);
             let packet = match read_result {
                 Ok(val) => match val {
                     Ok(real_val) => real_val,
@@ -71,7 +75,7 @@ fn tick(game_state: &mut GameState) {
                         break;
                     }
                 },
-                Err(e) => {
+                Err(_) => {
                     client.disconnected = true;
                     break;
                 }
@@ -98,7 +102,7 @@ fn tick(game_state: &mut GameState) {
                 continue;
             }
 
-            let _ = write_packet(&mut client.stream, &packet);
+            let _ = write_packet(&mut client.stream.as_mut().expect("meow"), &packet);
         }
     }
 

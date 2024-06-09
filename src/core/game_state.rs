@@ -5,7 +5,7 @@ use crate::types::pos::Pos;
 pub struct Client {
     pub id: u32,
     pub position: Pos,
-    pub stream: Box<TcpStream>,
+    pub stream: Option<Box<TcpStream>>,
     pub disconnected: bool
 }
 
